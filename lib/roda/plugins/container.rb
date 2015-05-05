@@ -32,9 +32,6 @@ class Roda
     #   MyApplication.resolve(:person_repository).first
     module Container
       module ClassMethods
-        # Whether middleware from the current class should be inherited by subclasses.
-        # True by default, should be set to false when using a design where the parent
-        # class accepts requests and uses run to dispatch the request to a subclass.
         attr_reader :container
         private :container
 

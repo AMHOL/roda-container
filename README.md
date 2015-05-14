@@ -36,6 +36,20 @@ MyApplication.resolve(:person_repository).first
   # => {:name=>"Gill"}
 ```
 
+If you want to register a proc, or anything that responds to call, without calling when resolving it, you can pass the `call: false` option:
+
+```ruby
+class MyApplication < Roda
+  plugin :container
+end
+
+MyApplication.route do |r|
+  # Roda responds to the instance method #call, with the call: false
+  # option, calling MyApplication.resolve(:app) will not attempt to call
+  # it, without the option, the application would error
+  MyApplication.register(:app, self, call: false)
+```
+
 ## Contributing
 
 1. Fork it ( https://github.com/AMHOL/roda-container )

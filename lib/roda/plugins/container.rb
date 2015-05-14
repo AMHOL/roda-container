@@ -31,6 +31,20 @@ class Roda
     #   MyApplication.register(:person_repository, -> { PersonRepository.new })
     #   MyApplication.resolve(:person_repository).first
     module Container
+      class Content
+        attr_reader :item, :options
+
+        def initialize(item, options = {})
+          @item, @options = item, {
+            call: item.kind_of?(::Proc)
+          }.merge(options)
+        end
+
+        def call?
+          options[:call] == true
+        end
+      end
+
       module ClassMethods
         # Whether middleware from the current class should be inherited by subclasses.
         # True by default, should be set to false when using a design where the parent
@@ -48,15 +62,26 @@ class Roda
           super
         end
 
-        def register(key, contents = nil, &block)
-          container[key] = block_given? ? block : contents
+        def register(key, contents = nil, options = {}, &block)
+          if block_given?
+            item = block
+            options = contents if contents.is_a?(::Hash)
+          else
+            item = contents
+          end
+          container[key] = Roda::RodaPlugins::Container::Content.new(item, options)
         end
 
         def resolve(key)
-          instance = container.fetch(key) do
+          content = container.fetch(key) do
             fail ::Roda::ContainerError, "Nothing registered with the name #{key}"
           end
-          instance.respond_to?(:call) ? instance.call : instance
+
+          if content.call?
+            content.item.call
+          else
+            content.item
+          end
         end
 
         def detach_container

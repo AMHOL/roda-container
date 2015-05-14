@@ -84,11 +84,6 @@ class Roda
         def detach_container
           @container = container.dup
         end
-
-        def freeze
-          container.freeze
-          super
-        end
       end
     end
 

@@ -36,12 +36,16 @@ class Roda
 
         def initialize(item, options = {})
           @item, @options = item, {
-            call: item.kind_of?(::Proc)
+            call: item.is_a?(::Proc)
           }.merge(options)
         end
 
-        def call?
-          options[:call] == true
+        def call
+          if options[:call] == true
+            item.call
+          else
+            item
+          end
         end
       end
 
@@ -77,11 +81,7 @@ class Roda
             fail ::Roda::ContainerError, "Nothing registered with the name #{key}"
           end
 
-          if content.call?
-            content.item.call
-          else
-            content.item
-          end
+          content.call
         end
 
         def detach_container

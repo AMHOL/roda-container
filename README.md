@@ -5,7 +5,7 @@ A plugin for Roda which turns your application into a (IoC) container
 ## Installation
 
 ```ruby
-gem 'roda-container', '0.0.2'
+gem 'roda-container', '0.0.3'
 ```
 
 ## Usage

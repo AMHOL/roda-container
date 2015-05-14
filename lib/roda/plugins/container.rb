@@ -31,6 +31,24 @@ class Roda
     #   MyApplication.register(:person_repository, -> { PersonRepository.new })
     #   MyApplication.resolve(:person_repository).first
     module Container
+      class Content
+        attr_reader :item, :options
+
+        def initialize(item, options = {})
+          @item, @options = item, {
+            call: item.is_a?(::Proc)
+          }.merge(options)
+        end
+
+        def call
+          if options[:call] == true
+            item.call
+          else
+            item
+          end
+        end
+      end
+
       module ClassMethods
         attr_reader :container
         private :container
@@ -45,15 +63,22 @@ class Roda
           super
         end
 
-        def register(key, contents = nil, &block)
-          container[key] = block_given? ? block : contents
+        def register(key, contents = nil, options = {}, &block)
+          if block_given?
+            item = block
+            options = contents if contents.is_a?(::Hash)
+          else
+            item = contents
+          end
+          container[key] = Roda::RodaPlugins::Container::Content.new(item, options)
         end
 
         def resolve(key)
-          instance = container.fetch(key) do
+          content = container.fetch(key) do
             fail ::Roda::ContainerError, "Nothing registered with the name #{key}"
           end
-          instance.respond_to?(:call) ? instance.call : instance
+
+          content.call
         end
 
         def detach_container

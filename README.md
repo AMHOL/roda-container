@@ -1,4 +1,4 @@
-# roda-container
+# roda-container <a href="https://gitter.im/AMHOL/roda-container" target="_blank">![Join the chat at https://gitter.im/AMHOL/roda-container](https://badges.gitter.im/Join%20Chat.svg)</a>
 
 A plugin for Roda which turns your application into a (IoC) container
 

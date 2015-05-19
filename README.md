@@ -80,7 +80,7 @@ end
 
 Immagine a user hitting `POST /users`, then another user hitting `GET /users/{id}` in quick succession; the first user registers their instance of app with the container, then hits the 5 second sleep, then the second user comes along, registers their instance of app with the container, the request executes and they go on their merry way.
 
-A few seconds later the 5 second sleep is complete, and the first user resolves `:app` from the container, only to find the instance that was registered by the user hitting `GET /users/{id}`, they have just spent 5 minutes meticulously filling out your webform to create their user account, only for their payload to lost in a race condition, needless to say, you don't want this to happen.
+A few seconds later the 5 second sleep is complete, and the first user resolves `:app` from the container, only to find the instance that was registered by the user hitting `GET /users/{id}`, they have just spent 5 minutes meticulously filling out your webform to create their user account, only for their payload to be lost in a race condition, needless to say - you don't want this to happen.
 
 ## Contributing
 

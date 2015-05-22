@@ -47,13 +47,13 @@ MyApplication.route do |r|
   # Roda responds to the instance method #call, with the call: false
   # option, calling MyApplication.instance.resolve(:app) will not attempt to call
   # it, without the option, the application would error
-  MyApplication.instance.register(:app, self, call: false)
+  register(:app, self, call: false) # Roda#register, regiser with the request container
 end
 ```
 
 ## Thread safety
 
-Please note the use of `MyApplication.instance.register` and `MyApplication.instance.resolve` above, without the calls to `Roda.instance` there is a high possiblilty of a thread safety issue when registering anything at runtime. For example:
+Please note the use of and `MyApplication.instance.resolve` above, without the call to `Roda.instance` the item will not be present in the container, as it was registered with the request container (using Roda#register), without this, there is high possiblilty of a thread safety issue when registering anything at runtime. For example:
 
 ```ruby
 class MyApplication < Roda
@@ -62,7 +62,7 @@ end
 
 MyApplication.route do |r|
   # DO NOT DO THIS, SEE ABOVE ^^^
-  MyApplication.register(:app, self, call: false)
+  MyApplication.register(:app, self, call: false) # Roda.register, register with the global container
 
   r.on 'users' do
     # ...
@@ -78,9 +78,17 @@ MyApplication.route do |r|
 end
 ```
 
-Immagine a user hitting `POST /users`, then another user hitting `GET /users/{id}` in quick succession; the first user registers their instance of app with the container, then hits the 5 second sleep, then the second user comes along, registers their instance of app with the container, the request executes and they go on their merry way.
+Immagine a user hitting `POST /users`, then another user hitting `GET /users/{id}` in quick succession; the first user registers their instance of app with the global container, then hits the 5 second sleep, then the second user comes along, registers their instance of app with the global container, the request executes and they go on their merry way.
 
-A few seconds later the 5 second sleep is complete, and the first user resolves `:app` from the container, only to find the instance that was registered by the user hitting `GET /users/{id}`, they have just spent 5 minutes meticulously filling out your webform to create their user account, only for their payload to be lost in a race condition, needless to say - you don't want this to happen.
+A few seconds later the 5 second sleep is complete, and the first user resolves `:app` from the global container, only to find the application instance that was registered by the user hitting `GET /users/{id}`, they have just spent 5 minutes meticulously filling out your webform to create their user account, only for their payload to be lost in a race condition, needless to say - you don't want this to happen.
+
+This is preventable by registering anything specific to a request with the request container, this is done using the `Roda#register` method, i.e.
+
+```ruby
+MyApplication.route do |r|
+  register(:app, self, call: false) # Roda#register, regiser with the request container
+end
+``
 
 ## Contributing
 

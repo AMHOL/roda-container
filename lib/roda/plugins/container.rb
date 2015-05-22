@@ -106,6 +106,10 @@ class Roda
           Thread.current[:__container__] = self.class.send(:container).dup
           super
         end
+        
+        def register(*args, &block)
+          self.class.instance.register(*args, &block)
+        end
       end
     end
 

@@ -72,7 +72,7 @@ RSpec.describe 'container plugin' do
   context 'registering with "instance"' do
     it 'is threadsafe' do
       Test::Application.route do |r|
-        Test::Application.instance.register(:app, self, call: false)
+        register(:app, self, call: false)
 
         r.on 'concurrency' do
           r.on 'one' do

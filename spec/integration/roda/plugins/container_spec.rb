@@ -3,7 +3,9 @@ require 'spec_helper'
 RSpec.describe 'container plugin' do
   before do
     module Test
-      class Application < Roda; end
+      class Application < Roda
+        plugin :container
+      end
     end
   end
 
@@ -69,43 +71,13 @@ RSpec.describe 'container plugin' do
     end
   end
 
-  context 'registering with "instance"' do
-    it 'is threadsafe' do
-      Test::Application.route do |r|
-        register(:app, self, call: false)
+  context 'registering with the same key twice' do
+    it 'raises an error on the second registration' do
+      Test::Application.register(:item, proc { 'item' })
 
-        r.on 'concurrency' do
-          r.on 'one' do
-            sleep(0.1)
-            r.get do
-              Test::Application.instance.resolve(:app).request.params.to_s
-            end
-          end
-
-          r.on 'two' do
-            r.get do
-              Test::Application.instance.resolve(:app).request.params.to_s
-            end
-          end
-        end
-      end
-
-      threads = []
-      queue = Queue.new
-      threads << Thread.new { queue << get('/concurrency/one', one: true) }
-      threads << Thread.new { queue << get('/concurrency/two', two: true) }
-      threads.each(&:join)
-
-      response_1 = queue.pop
-      response_2 = queue.pop
-
-      if response_1.body =~ /^Request 1\:/
-        expect(response_1.body).to end_with("{\"one\"=>\"true\"}")
-        expect(response_2.body).to end_with("{\"two\"=>\"true\"}")
-      else
-        expect(response_2.body).to end_with("{\"one\"=>\"true\"}")
-        expect(response_1.body).to end_with("{\"two\"=>\"true\"}")
-      end
+      expect { Test::Application.register(:item, proc { 'item' }) }.to raise_error(
+        Dry::Container::Error
+      )
     end
   end
 end

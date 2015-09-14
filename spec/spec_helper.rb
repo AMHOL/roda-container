@@ -1,8 +1,6 @@
 require 'roda'
 require 'rack/test'
 
-Roda.plugin :container
-
 # Namespace holding all objects created during specs
 module Test
   def self.remove_constants

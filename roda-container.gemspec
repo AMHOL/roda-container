@@ -1,7 +1,7 @@
 # coding: utf-8
 Gem::Specification.new do |spec|
   spec.name         = 'roda-container'
-  spec.version      = '0.1.0'
+  spec.version      = '0.1.1'
   spec.authors      = ['Andy Holland']
   spec.email        = ['andyholland1991@aol.com']
 
